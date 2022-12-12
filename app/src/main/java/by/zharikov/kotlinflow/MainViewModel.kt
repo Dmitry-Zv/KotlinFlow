@@ -19,8 +19,44 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    private val _stateFlow = MutableStateFlow(0)
+    val stateFlow = _stateFlow.asStateFlow()
+
+    private val _sharedFlow = MutableSharedFlow<Int>()
+    val sharedFlow = _sharedFlow.asSharedFlow()
+
     init {
         collectFlow()
+
+        viewModelScope.launch {
+            sharedFlow.collect {
+                delay(2000L)
+                println("FIRST FLOW: The received number is $it")
+            }
+        }
+
+
+        viewModelScope.launch {
+            sharedFlow.collect {
+                delay(3000L)
+                println("SECOND FLOW: The received number is $it")
+            }
+        }
+
+        squareNumber(3)
+
+
+    }
+
+    fun incrementCounter() {
+        _stateFlow.value += 1
+    }
+
+    fun squareNumber(number: Int) {
+        viewModelScope.launch {
+
+            _sharedFlow.emit(number * number)
+        }
     }
 
     private fun collectFlow() {
@@ -31,7 +67,7 @@ class MainViewModel : ViewModel() {
 //            delay(1000L)
 //            emit(2)
 //        })
-        val flow = flow{
+        val flow = flow {
             delay(250L)
             emit("Appetizer")
             delay(500L)
@@ -79,7 +115,7 @@ class MainViewModel : ViewModel() {
             }
                 //.buffer()
                 .conflate()
-                .collect{
+                .collect {
                     println("FLOW: Eating $it")
                     delay(1500L)
                     println("FLOW: Finish $it")
