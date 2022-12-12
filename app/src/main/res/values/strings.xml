@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Kotlin Flow</string>
+    <string name="increment_counter">Increment counter</string>
 </resources>
